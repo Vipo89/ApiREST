@@ -33,6 +33,9 @@ const userSchema = new Schema({
     favorites: {
         type: [mongoose.Schema.Types.ObjectId],
         ref:"Movie"
+    },isActive:{
+        type: Boolean,
+        default:true
     }
 });
 

@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../models/userModel");
+const generateToken = require("../utils/authToken");
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 10);
 
 const signup = async (req, res) => {
@@ -37,14 +38,12 @@ const login = async (req, res) => {
 
     const user = await userModel
       .findOne({ email: email })
-      .select("name lastName email password role -_id");
+      .select("name lastName email password role isActive"); //Para no mostrar el id es -_id
     if (!user) {
-      return res
-        .status(400)
-        .send({
-          status: "Failed",
-          message: "Credenciales introducidas incorrectas",
-        });
+      return res.status(400).send({
+        status: "Failed",
+        message: "Credenciales introducidas incorrectas",
+      });
     }
     console.log("Recibido:", { email, password });
 
@@ -52,20 +51,38 @@ const login = async (req, res) => {
     const validatePassword = await bcrypt.compare(password, user.password);
 
     if (!validatePassword)
-      return res
-        .status(400)
-        .send({
-          status: "Failed",
-          message: "Credenciales introducidas incorrectas",
-        });
+      return res.status(400).send({
+        status: "Failed",
+        message: "Credenciales introducidas incorrectas",
+      });
 
-        const returnUser = {
-            name: user.name,
-            lastName:user.lastName,
-            email:user.email,
-            role:user.role
-        }
-    res.status(200).send({ status: "Success", data: returnUser });
+    if (!user.isActive) {
+      return res.status(400).send({
+        status: "Failed",
+        message: "El usuario está deshabilitado temporalmente",
+      });
+    }
+    const returnUser = {
+      name: user.name,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    };
+
+    //Zona para la creación del token
+
+    const payload = {
+      _id: user._id,
+      name: user.name,
+      role: user.role,
+    };
+
+    const token = generateToken(payload, false);
+    const token_refresh = generateToken(payload, true);
+
+    res
+      .status(200)
+      .send({ status: "Success", data: returnUser, token, token_refresh });
   } catch (error) {
     res.status(500).send({ status: "Failed", message: error });
   }

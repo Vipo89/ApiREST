@@ -94,7 +94,6 @@ const editMovieById = async (req, res) => {
   }
 };
 
-
 const searchMovieByName = async (req, res) => {
   try {
     const { movieName } = req.params;
@@ -109,4 +108,62 @@ const searchMovieByName = async (req, res) => {
   }
 };
 
-module.exports = { getAllMovies, getMovieById, insertNewMovie, editMovieById , searchMovieByName};
+const sentCommentToMovie = async (req, res) => {
+  try {
+    const { idMovie } = req.params;
+
+    const movie = await movieModel.findById(idMovie);
+
+    if (!movie) return res.status(200).send("No se han encontrado la película");
+    //Rescato el comentario que vendrá enviado desde el body
+    const { comment } = req.body;
+    //Rescatamos el idUser del payload, que viene de verifytoken, que se genera una vez uno hace el login
+    const idUser = req.payload._id;
+    //Me construyo mi comentario
+    const commentObject = {
+      userId: idUser,
+      comment: comment,
+    };
+
+    movie.comments.push(commentObject);
+    movie.save();
+
+    res.status(200).send({ status: "Success", data: movie });
+  } catch (error) {
+    res.status(500).send({ status: "Failed", error: error.message });
+  }
+};
+
+//"/:idMovie/comments/:idComment"
+const removeMovieComment = async (req, res) => {
+  try {
+    const { idMovie, idComment } = req.params;
+    const movie = await movieModel.findById(idMovie);
+    if (!movie) return res.status(200).send("No se han encontrado la película");
+
+    const comment = movie.comments.id(idComment);
+    if (!comment) {
+      return res.status(200).send("La película no tiene ese comentario");
+    }
+comment.deleteOne();
+
+    // if (!movie.comments._id=== idComment) {
+    //   return res.status(200).send("La película no tiene ese comentario");
+    // }
+
+    movie.comments.pull(idComment)
+    movie.save();
+    res.status(200).send({ status: "Success", data: movie });
+  } catch (error) {
+    res.status(500).send({ status: "Failed", error: error.message });
+  }
+};
+module.exports = {
+  getAllMovies,
+  getMovieById,
+  insertNewMovie,
+  editMovieById,
+  searchMovieByName,
+  sentCommentToMovie,
+  removeMovieComment,
+};

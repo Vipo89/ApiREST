@@ -13,9 +13,12 @@ const {
   removeFavoriteMovie,
   searchUserByName
 } = require("../controllers/userController");
+const { verifyToken, verifyAdmin } = require("../middlewares/auth");
+
+
 
 // Ruta para obtener todos los usuarios
-router.get("/", getAllUsers);
+router.get("/",verifyToken, verifyAdmin,getAllUsers);
 // Ruta para obtener usuario por id
 router.get("/:idUser", getUserById);
 // Ruta para crear usuario
