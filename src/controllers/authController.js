@@ -31,6 +31,51 @@ const signup = async (req, res) => {
     res.status(500).send({ status: "Failed", message: error });
   }
 };
+const signupMultiple = async (req, res) => {
+  try {
+    const usersArray = req.body;
+
+    if (!usersArray || usersArray.length === 0) {
+      return res.status(200).send("No se han enviado usuarios");
+    }
+
+    let cantidadIntroducida = 0;
+
+    for (const singleUser of usersArray) {
+      const { name, lastName, email, password } = singleUser;
+
+      const newUser = {
+        name,
+        lastName,
+        email,
+        password: await bcrypt.hash(password, BCRYPT_ROUNDS),
+      };
+
+      const user = await userModel.create(newUser);
+
+      if (user) cantidadIntroducida++;
+    }
+
+    if (cantidadIntroducida === usersArray.length) {
+      return res
+        .status(200)
+        .send(
+          `Se han introducido correctamente ${cantidadIntroducida} usuarios`
+        );
+    } else {
+      return res.status(401).send("Algún usuario no ha podido introducirse");
+    }
+  } catch (error) {
+    console.error("ERROR SIGNUP MULTIPLE:");
+    console.error(error);
+
+    return res.status(500).send({
+      status: "Error",
+      message: error.message,
+      error: error,
+    });
+  }
+};
 
 const login = async (req, res) => {
   try {
@@ -88,4 +133,20 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login };
+const getTokens = (req, res) => {
+  try {
+    const payload = {
+      _id: req.payload._id,
+      name: req.payload.name,
+      role: req.payload.role,
+    };
+    const token = generateToken(payload, false);
+    // const token_refresh = generateToken(payload, true);
+
+    res.status(200).send({ status: "Success", token });
+  } catch (error) {
+    res.status(500).send({ status: "Failed", message: error });
+  }
+};
+
+module.exports = { signup, login, getTokens, signupMultiple };

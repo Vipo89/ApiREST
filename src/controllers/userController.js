@@ -1,6 +1,13 @@
 const userModel = require("../models/userModel");
 const movieModel = require("../models/movieModel");
 
+
+/**
+ * 
+ * @param {Request} req  Esta es la request lanzada desde el frontEnd
+ * @param {Response} res Esta es la respuesta queda el backEnd al frontEnd
+ * @returns Un objeto con la propiedad status, que puede ser Success o Failed
+ */
 const getAllUsers = async (req, res) => {
   try {
     const users = await userModel.find();
@@ -72,8 +79,10 @@ const deleteUserById = async (req, res) => {
 
 const editUserById = async (req, res) => {
   try {
+    
     const { idUser } = req.params;
     const newUser = req.body;
+    
     const updatedUser = await userModel.findByIdAndUpdate(idUser, newUser, {
       new: true,
       runValidators: true,

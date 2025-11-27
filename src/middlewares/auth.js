@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
+  
   const token = req.header("auth-token");
   if (!token) return res.status(401).send("Acceso denegado");
   try {
@@ -29,10 +30,30 @@ const verifyAdmin = (req, res, next) => {
         .status(401)
         .send({ status: "Failed", message: "You don't have admin privileges" });
     }
-    next()
+    next();
   } catch (error) {
-      res.status(401).send({ status: "Error Endpoint", error: error.message });
+    res.status(401).send({ status: "Error Endpoint", error: error.message });
   }
 };
 
-module.exports = { verifyToken, verifyAdmin };
+const verifyUserPermissions = (req, res,next) => {
+
+  try {
+    const { _id: idUserAuthenticated, role } = req.payload;
+
+    const { idUser } = req.params;
+
+    if (idUser === idUserAuthenticated || role === "admin") {
+      next();
+    } else {
+      return res.status(403).send({
+        status: "Failed",
+        message: "No tienes permisos para realizar esta acción",
+      });
+    }
+  } catch (error) {
+    res.status(401).send({ status: "Error Endpoint", error: error.message });
+  }
+};
+
+module.exports = { verifyToken, verifyAdmin, verifyUserPermissions };
