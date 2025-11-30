@@ -2,7 +2,7 @@ const userModel = require("../models/userModel");
 const movieModel = require("../models/movieModel");
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con la propiedad status, que puede ser Success o Failed, y otra propiedad, que peudes ser data o error, dependiendo del status
@@ -18,7 +18,7 @@ const getAllUsers = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con los datos de usuario encontrado
@@ -36,7 +36,7 @@ const getUserById = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Confirmacion de usuario insertado correctamente. En desuso, se realiza en /api/auth/signup
@@ -74,7 +74,7 @@ const insertNewUser = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Confirmacion de usuario eliminado correctamente.
@@ -94,7 +94,7 @@ const deleteUserById = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con la propiedad status, que puede ser Success o Failed, y otra propiedad, que puedes ser data(del usuario actualizado) o error, dependiendo del status
@@ -116,7 +116,7 @@ const editUserById = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con la propiedad status, que puede ser Success o Failed, y otra propiedad, que puedes ser data(del usuario con favoritos actualizados) o error, dependiendo del status
@@ -139,7 +139,7 @@ const addFavoriteMovie = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con la propiedad status, que puede ser Success o Failed, y otra propiedad, que puedes ser data(del usuario con favoritos actualizados) o error, dependiendo del status
@@ -162,7 +162,7 @@ const removeFavoriteMovie = async (req, res) => {
 };
 
 /**
- * 
+ *
  * @param {Request} req Esta es la request lanzada desde el frontEnd
  * @param {Response} res Esta el la respuesta que da el backEnd al frontEnd
  * @returns Un objeto con la propiedad status, que puede ser Success o Failed, y otra propiedad, que puedes ser data(con los usuarios encontrados) o error, dependiendo del status
@@ -175,11 +175,12 @@ const searchUserByName = async (req, res) => {
     });
     if (users.length === 0)
       return res.status(200).send("No se han encontrado usuarios");
-    res.status(200).send({status: "success", data: users})
+    res.status(200).send({ status: "success", data: users });
   } catch (error) {
     res.status(500).send({ status: "Failed", error: error.message });
   }
 };
+
 
 module.exports = {
   getAllUsers,

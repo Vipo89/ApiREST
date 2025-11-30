@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../models/userModel");
 const generateToken = require("../utils/authToken");
+const { sendEmail } = require("../services/emailServices");
 
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 10);
 
@@ -19,6 +20,14 @@ const signup = async (req, res) => {
         .status(400)
         .send({ status: "Failed", message: "No se ha creado el usuario" });
     }
+    //Realizo el envío del email
+    const to = email;
+    const subject = "Bienvenido a nuestra App";
+    const html = `<h2>Bienvenido ${name}</h2>
+    
+                      <p> Gracias por registrarte en nuestra aplicación </p>`;
+
+    await sendEmail(to,subject,html);
     res.status(200).send({
       status: "Success",
       message: "El usuario se ha creado correctamente",
@@ -50,7 +59,9 @@ const signupMultiple = async (req, res) => {
           .send({ status: "Failed", message: "No se ha creado el usuario" });
       }
     });
-    res.status(200).send(`Se han introducido correctamente ${cantidadUsers} usuarios`)
+    res
+      .status(200)
+      .send(`Se han introducido correctamente ${cantidadUsers} usuarios`);
   } catch (error) {
     res.status(500).send({ status: "Failed", error: error.message });
   }
@@ -139,10 +150,42 @@ const loginWithToken = async (req, res) => {
   }
 };
 
+const makeAdmin = async (req, res) => {
+  try {
+    ///makeAdmin/:idUser
+    const { idUser } = req.params;
+    const userToAdmin = await userModel.findById(idUser);
+    if (!userToAdmin) {
+      return res.status(401).send({
+        status: "Failed",
+        message: "No se ha encontrado usuario con ese ID",
+      });
+    }
+    if (userToAdmin.role === "admin") {
+      return res.status(200).send({
+        status: "Failed",
+        message: "Este usuario ya es administrador",
+      });
+    }
+
+    // console.log(userToAdmin);
+
+    userToAdmin.role = "admin";
+    userToAdmin.save();
+
+    // console.log(userToAdmin);
+
+    res.status(200).send({ status: "Success", data: userToAdmin });
+  } catch (error) {
+    res.status(500).send({ status: "Failed", error: error.message });
+  }
+};
+
 module.exports = {
   signup,
   login,
   updatePrincipalToken,
   loginWithToken,
   signupMultiple,
+  makeAdmin,
 };
